@@ -81,7 +81,6 @@ int main(int argc, char ** argv)
     srand(5);
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
-        memset(&aio, 0, sizeof(aio));
         aio.aio_offset = (float)len1 * rand() / RAND_MAX;
         printf("%ld ", aio.aio_offset);
         aio_read(&aio);
