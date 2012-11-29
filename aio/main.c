@@ -11,7 +11,11 @@
 #include <aio.h> /* aio_read, aio_error, aio_return */
 #include <errno.h> /* EINPROGRESS */
 #include <time.h>
+#include <assert.h>
 
+
+#define REPTIMES 1000000
+#define READSIZE 40960
 struct timespec diff(struct timespec start, struct timespec end)
 {
     struct timespec temp;
@@ -29,50 +33,76 @@ struct timespec diff(struct timespec start, struct timespec end)
 int main(int argc, char ** argv)
 {
     ssize_t bytes_read = 0;
-    int port_fd = 0;
-    char data[20];
+    int fd1 = 0, fd2 = 0;
+    char data[READSIZE];
     struct aiocb aio;
+    int i;
+    struct timespec time1, time2;
+    off_t offset;
 
-    if ( argc != 2 ) {
-        printf( "Usage: %s file-path", argv[0] );
+    if ( argc != 3 ) {
+        printf( "Usage: %s file-1-path file-2-path", argv[0] );
+        exit(1);
     }
 
-    struct timespec time1, time2;
-    int temp;
-    long long i;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-    for ( i = 0; i< 2400000000; i++)
-        temp+=temp;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-    printf("%ld:%ld\n", diff(time1,time2).tv_sec, diff(time1,time2).tv_nsec);
-    return 0;
+    
+    fd1 = open(argv[1], O_RDONLY);
 
-
-
-
-    port_fd = open(argv[1], O_RDONLY);
-
-    if (port_fd == -1) {
+    if (fd1 == -1) {
         perror("open");
         return EXIT_FAILURE;
     }
 
+    fd2 = open(argv[2], O_RDONLY);
+
+    if (fd2 == -1) {
+        perror("open");
+        return EXIT_FAILURE;
+    }
+
+
     memset(&aio, 0, sizeof(aio));
     memset(&data, 0, sizeof(data));
 
-    aio.aio_fildes = port_fd;
+    aio.aio_fildes = fd1;
     aio.aio_buf = data;
-    aio.aio_nbytes = sizeof(data);
+    aio.aio_nbytes = READSIZE;
+   
+    srand(5);
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+    for ( i = 0 ; i < REPTIMES ; i++ ) {
+        aio.aio_offset = 12730530.0*rand()/RAND_MAX;
+        //printf("%ld ", aio.aio_offset);
+        aio_read(&aio);
+    }
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+    printf("AIO time consumed: %f\n", 
+            diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);
 
-    aio_read(&aio);
+    
 
     while (aio_error(&aio) == EINPROGRESS) {}
 
     bytes_read = aio_return(&aio);
 
-    fprintf(stdout, "%s\n", data);
+    printf("%d bytes in the last aio read.\n", bytes_read);
 
-    close(port_fd);
+    close(fd1);
+
+    srand(5);
+    bytes_read = 0;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+    for ( i = 0 ; i < REPTIMES ; i++ ) {
+        offset = 12730530.0*rand()/RAND_MAX;
+        //printf("%ld ", offset);
+        bytes_read += read(fd2, data, READSIZE);
+    }
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+    printf("%d bytes read in total in sync io.", bytes_read);
+    printf("Sync IO time consumed: %f\n", 
+            diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);
+
+    close(fd2);
 
     return EXIT_SUCCESS;
 }
