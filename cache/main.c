@@ -9,7 +9,6 @@
 #include <stdio.h> /* fprintf, perror */
 #include <stdlib.h> /* EXIT_SUCCESS, EXIT_FAILURE */
 #include <string.h> /* memset */
-#include <aio.h> /* aio_read, aio_error, aio_return */
 #include <errno.h> /* EINPROGRESS */
 #include <time.h>
 #include <assert.h>
@@ -18,7 +17,7 @@
 #include <fcntl.h>
 
 #define REPTIMES 1000000
-#define READSIZE 1
+#define READSIZE 2048
 
 
 struct timespec diff(struct timespec start, struct timespec end)
@@ -70,8 +69,9 @@ int main(int argc, char ** argv)
     bytes_read1 = 0;
     bytes_read2 = 0;
     for ( i = 0 ; i < REPTIMES ; i++ ) {
-        offset = (float)len1 * rand() / RAND_MAX;
-        //printf("%ld ", offset);
+        //offset = len1 * (i / (double)REPTIMES);
+        offset = len1 * (rand() / (double)RAND_MAX);
+        //printf("%ld * %d / %d = %ld \n", len1, i, REPTIMES, offset);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
         bytes_read1 += pread(fd1, data, READSIZE, offset);
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
@@ -89,8 +89,8 @@ int main(int argc, char ** argv)
     printf("Second %9d calls time consumed (sec): %f\n", REPTIMES, secondcalltime);
     printf("Time difference first-second (sec):         %f\n", firstcalltime - secondcalltime);
 
-    printf("First  calls read (bytes): %d\n", bytes_read1);
-    printf("Second calls read (bytes): %d\n", bytes_read2);
+    printf("First  calls read (Kb): %d\n", bytes_read1/1024);
+    printf("Second calls read (Kb): %d\n", bytes_read2/1024);
 
     close(fd1);
 
