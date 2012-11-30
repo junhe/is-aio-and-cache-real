@@ -1,5 +1,4 @@
 /* 
- * Modification based on http://code.google.com/p/fscc-linux/source/browse/examples/c/aio_read.c?spec=svn854c6f36ea2b6c8eaa1306bf5699b89a99567318&r=854c6f36ea2b6c8eaa1306bf5699b89a99567318
  * 
  */
 
@@ -18,8 +17,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define REPTIMES 1
-#define READSIZE 4
+#define REPTIMES 10000000
+#define READSIZE 1
 
 
 struct timespec diff(struct timespec start, struct timespec end)
@@ -82,22 +81,20 @@ int main(int argc, char ** argv)
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         aio.aio_offset = (float)len1 * rand() / RAND_MAX;
-        printf("%ld ", aio.aio_offset);
+        //printf("%ld ", aio.aio_offset);
         aio_read(&aio);
     }
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
     printf("AIO time consumed: %f\n", 
             diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);
-    printf("AIO time consumed: %ld:%ld\n", 
-            diff(time1,time2).tv_sec, diff(time1,time2).tv_nsec);
    
 
-    while (aio_error(&aio) == EINPROGRESS) {}
+    //while (aio_error(&aio) == EINPROGRESS) {}
 
-    bytes_read = aio_return(&aio);
+    //bytes_read = aio_return(&aio);
 
-    printf("%d bytes in the last aio read.\n", bytes_read);
-    printf("They are: %s\n", data);
+    //printf("%d bytes in the last aio read.\n", bytes_read);
+    //printf("They are: %s\n", data);
 
     close(fd1);
 
@@ -112,21 +109,15 @@ int main(int argc, char ** argv)
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         offset = (float)len2 * rand() / RAND_MAX;
-        printf("%ld ", offset);
-        bytes_read += read(fd2, data, READSIZE);
+        //printf("%ld ", offset);
+        bytes_read += pread(fd2, data, READSIZE, offset);
     }
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
     printf("%d bytes read in total in sync io.", bytes_read);
     printf("Sync IO time consumed: %f\n", 
             diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);
-    printf("Sync IO time consumed: %ld:%ld\n", 
-            diff(time1,time2).tv_sec, diff(time1,time2).tv_nsec);
 
     close(fd2);
-
-
-
-
 
 
 
