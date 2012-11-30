@@ -1,5 +1,17 @@
 /* 
- * 
+ * To Compile:
+ * $ gcc main.c -lrt
+ *
+ * To Run:
+ * $ ./a.out path-of-file-01 path-of-file-02
+ *
+ * You want the file to be of equal size so it is 
+ * fair for bot cases.
+ *
+ * Macro:
+ *   REPTIMES : times of read
+ *   READSIZE : size of each read
+ *
  */
 
 #define _GNU_SOURCE

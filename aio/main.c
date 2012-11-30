@@ -1,5 +1,17 @@
 /* 
- * 
+ * To Compile:
+ * $ gcc main.c -lrt
+ *
+ * To Run:
+ * $ ./a.out path-of-file-01 path-of-file-02
+ *
+ * You want the file to be of equal size so it is 
+ * fair for bot cases.
+ *
+ * Macro:
+ *   REPTIMES : times of read
+ *   READSIZE : size of each read
+ *
  */
 
 #define _GNU_SOURCE
@@ -113,7 +125,7 @@ int main(int argc, char ** argv)
         bytes_read += pread(fd2, data, READSIZE, offset);
     }
     clock_gettime(TIMING_METHOD, &time2);
-    printf("%d bytes read in total in sync io.", bytes_read);
+    printf("%d bytes read in total in sync io.\n", bytes_read);
     printf("Sync IO time consumed: %f\n", 
             diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);
 

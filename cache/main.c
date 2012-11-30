@@ -1,5 +1,18 @@
 /* 
- * 
+ * To Compile:
+ * $ gcc main.c -lrt
+ *
+ * To Run:
+ * $ ./a.out path-of-file
+ *
+ * The bigger the file is, the bigger difference you will
+ * see between the first read call and second one, because 
+ * of seeking.
+ *
+ * Macro:
+ *   REPTIMES : times of read
+ *   READSIZE : size of each read
+ *
  */
 
 #define _GNU_SOURCE
@@ -48,7 +61,8 @@ int main(int argc, char ** argv)
 
     if ( argc != 2 ) {
         printf( "Usage: %s file-path\n", argv[0] );
-        printf( "Use a file that you have not been used for a long tim.");
+        printf( "Use a file that you have not been used for a long time\n."
+                "Or bigger enough so the cache is impossible to hold it all.\n");
         exit(1);
     }
 
