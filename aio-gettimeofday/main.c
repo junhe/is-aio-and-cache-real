@@ -15,25 +15,11 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <fcntl.h>
 
 #define REPTIMES 10000
 #define READSIZE 1
-#define TIMING_METHOD CLOCK_REALTIME
-
-struct timespec diff(struct timespec start, struct timespec end)
-{
-    struct timespec temp;
-    if ((end.tv_nsec-start.tv_nsec)<0) {
-        temp.tv_sec = end.tv_sec-start.tv_sec-1;
-        temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
-    } else {
-        temp.tv_sec = end.tv_sec-start.tv_sec;
-        temp.tv_nsec = end.tv_nsec-start.tv_nsec;
-    }
-    return temp;
-}
-
 
 int main(int argc, char ** argv)
 {
@@ -45,6 +31,8 @@ int main(int argc, char ** argv)
     struct timespec time1, time2;
     off_t offset;
     off_t len1, len2;
+
+    struct timeval start, end, result;
 
     if ( argc != 3 ) {
         printf( "Usage: %s file-1-path file-2-path", argv[0] );
@@ -78,22 +66,25 @@ int main(int argc, char ** argv)
     assert(len1 >= 0);
    
     srand(5);
-    clock_gettime(TIMING_METHOD, &time1);
+    //clock_gettime(TIMING_METHOD, &time1);
+    gettimeofday(&start, NULL);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         aio.aio_offset = len1 * (rand() / (double)RAND_MAX);
         //printf("%ld ", aio.aio_offset);
         aio_read(&aio);
     }
-    clock_gettime(TIMING_METHOD, &time2);
-    printf("AIO time consumed: %f\n", 
-            diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);
-   
+    gettimeofday(&end, NULL);
 
-    //while (aio_error(&aio) == EINPROGRESS) {}
 
-    //bytes_read = aio_return(&aio);
+    timersub( &end, &start, &result );
+    printf("AIO Time: %ld.%ld\n", result.tv_sec, result.tv_usec);
+    
 
-    //printf("%d bytes in the last aio read.\n", bytes_read);
+    while (aio_error(&aio) == EINPROGRESS) {}
+
+    bytes_read = aio_return(&aio);
+
+    printf("%d bytes in the last aio read.\n", bytes_read);
     //printf("They are: %s\n", data);
 
     close(fd1);
@@ -106,21 +97,18 @@ int main(int argc, char ** argv)
     
     srand(5);
     bytes_read = 0;
-    clock_gettime(TIMING_METHOD, &time1);
+    gettimeofday(&start, NULL);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         offset = len2 * (rand() / (double)RAND_MAX);
         //printf("%ld ", offset);
         bytes_read += pread(fd2, data, READSIZE, offset);
     }
-    clock_gettime(TIMING_METHOD, &time2);
-    printf("%d bytes read in total in sync io.", bytes_read);
-    printf("Sync IO time consumed: %f\n", 
-            diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);
+    gettimeofday(&end, NULL);
+
+    timersub( &end, &start, &result );
+    printf("Sync IO Time: %ld.%ld\n", result.tv_sec, result.tv_usec);
 
     close(fd2);
-
-
-
 
     return EXIT_SUCCESS;
 }
