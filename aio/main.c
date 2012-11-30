@@ -17,9 +17,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define REPTIMES 10000000
+#define REPTIMES 10000
 #define READSIZE 1
-
+#define TIMING_METHOD CLOCK_REALTIME
 
 struct timespec diff(struct timespec start, struct timespec end)
 {
@@ -78,13 +78,13 @@ int main(int argc, char ** argv)
     assert(len1 >= 0);
    
     srand(5);
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+    clock_gettime(TIMING_METHOD, &time1);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         aio.aio_offset = len1 * (rand() / (double)RAND_MAX);
         //printf("%ld ", aio.aio_offset);
         aio_read(&aio);
     }
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+    clock_gettime(TIMING_METHOD, &time2);
     printf("AIO time consumed: %f\n", 
             diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);
    
@@ -106,13 +106,13 @@ int main(int argc, char ** argv)
     
     srand(5);
     bytes_read = 0;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+    clock_gettime(TIMING_METHOD, &time1);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         offset = len2 * (rand() / (double)RAND_MAX);
         //printf("%ld ", offset);
         bytes_read += pread(fd2, data, READSIZE, offset);
     }
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+    clock_gettime(TIMING_METHOD, &time2);
     printf("%d bytes read in total in sync io.", bytes_read);
     printf("Sync IO time consumed: %f\n", 
             diff(time1,time2).tv_sec + diff(time1,time2).tv_nsec/1000000000.0);

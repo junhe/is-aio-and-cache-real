@@ -16,7 +16,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define REPTIMES 10000
+#define REPTIMES 1000
 #define READSIZE 2048
 #define TIMING_METHOD CLOCK_REALTIME
 
