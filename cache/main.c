@@ -16,9 +16,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define REPTIMES 1000000
+#define REPTIMES 10000
 #define READSIZE 2048
-
+#define TIMING_METHOD CLOCK_REALTIME
 
 struct timespec diff(struct timespec start, struct timespec end)
 {
@@ -72,15 +72,15 @@ int main(int argc, char ** argv)
         //offset = len1 * (i / (double)REPTIMES);
         offset = len1 * (rand() / (double)RAND_MAX);
         //printf("%ld * %d / %d = %ld \n", len1, i, REPTIMES, offset);
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+        clock_gettime(TIMING_METHOD, &time1);
         bytes_read1 += pread(fd1, data, READSIZE, offset);
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+        clock_gettime(TIMING_METHOD, &time2);
         firstcalltime += diff(time1,time2).tv_sec 
             + diff(time1,time2).tv_nsec/1000000000.0;
 
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+        clock_gettime(TIMING_METHOD, &time1);
         bytes_read2 += pread(fd1, data, READSIZE, offset);
-        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+        clock_gettime(TIMING_METHOD, &time2);
         secondcalltime += diff(time1,time2).tv_sec 
             + diff(time1,time2).tv_nsec/1000000000.0;
     }
