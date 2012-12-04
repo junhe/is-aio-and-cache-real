@@ -29,8 +29,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define REPTIMES 1000
-#define READSIZE 2048
+#define REPTIMES 1
+#define READSIZE 1000000
 #define TIMING_METHOD CLOCK_REALTIME
 
 struct timespec diff(struct timespec start, struct timespec end)
@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
     }
 
     
-    fd1 = open(argv[1], O_RDONLY);
+    fd1 = open(argv[1], O_RDONLY, O_DIRECT);
 
     if (fd1 == -1) {
         perror("open");
@@ -103,8 +103,8 @@ int main(int argc, char ** argv)
     printf("Second %9d calls time consumed (sec): %f\n", REPTIMES, secondcalltime);
     printf("Time difference first-second (sec):         %f\n", firstcalltime - secondcalltime);
 
-    printf("First  calls read (Kb): %d\n", bytes_read1/1024);
-    printf("Second calls read (Kb): %d\n", bytes_read2/1024);
+    printf("First  calls read (bytes): %d\n", bytes_read1);
+    printf("Second calls read (bytes): %d\n", bytes_read2);
 
     close(fd1);
 
