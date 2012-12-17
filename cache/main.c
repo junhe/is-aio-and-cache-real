@@ -29,8 +29,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define REPTIMES 1
-#define READSIZE 1000000
+#define REPTIMES 10000
+#define READSIZE 1000
 #define TIMING_METHOD CLOCK_REALTIME
 
 struct timespec diff(struct timespec start, struct timespec end)
@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
     }
 
     
-    fd1 = open(argv[1], O_RDONLY, O_DIRECT);
+    fd1 = open(argv[1], O_RDONLY);
 
     if (fd1 == -1) {
         perror("open");

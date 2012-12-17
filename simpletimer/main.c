@@ -1,6 +1,6 @@
 /* 
  * To Compile:
- * $ gcc main.c -lrt
+ * $gcc -D_FILE_OFFSET_BITS=64 main.c -lrt
  *
  * To Run:
  * $ ./a.out path-of-file
@@ -52,7 +52,6 @@ int main(int argc, char ** argv)
     int i;
     off_t offset, stridesize, reqsize, nstride;
     ssize_t bytes_read;
-    ssize_t bytes_read2;
     float exetime; 
 
     if ( argc != 5 ) {
@@ -66,7 +65,7 @@ int main(int argc, char ** argv)
 
     printf("stridesize: %lld, reqsize: %lld, nstride: %lld.\n", stridesize, reqsize, nstride);
     
-    fd = open(argv[1], O_RDONLY, O_DIRECT);
+    fd = open(argv[1], O_RDONLY);
 
     if (fd == -1) {
         perror("open");
@@ -81,6 +80,7 @@ int main(int argc, char ** argv)
         offset = stridesize * i;
         ssize_t ret = pread(fd, data, reqsize, offset);
         bytes_read += ret;
+        usleep(10);
     }
     clock_gettime(TIMING_METHOD, &time2);
     free(data); 
@@ -89,7 +89,7 @@ int main(int argc, char ** argv)
               + diff(time1,time2).tv_nsec/1000000000.0;
    
     printf("Execution Time (sec): %f\n", exetime);
-    printf("First  calls read (bytes): %d\n", bytes_read);
+    printf("Bytes calls read (bytes): %d\n", bytes_read);
 
     close(fd);
 

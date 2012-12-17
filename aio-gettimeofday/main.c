@@ -52,14 +52,14 @@ int main(int argc, char ** argv)
     }
 
     
-    fd1 = open(argv[1], O_RDONLY, O_DIRECT);
+    fd1 = open(argv[1], O_RDONLY);
 
     if (fd1 == -1) {
         perror("open");
         return EXIT_FAILURE;
     }
 
-    fd2 = open(argv[2], O_RDONLY, O_DIRECT);
+    fd2 = open(argv[2], O_RDONLY);
 
     if (fd2 == -1) {
         perror("open");

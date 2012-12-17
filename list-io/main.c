@@ -55,14 +55,14 @@ int main(int argc, char ** argv)
     }
 
     
-    fd1 = open(argv[1], O_RDONLY, O_DIRECT);
+    fd1 = open(argv[1], O_RDONLY);
 
     if (fd1 == -1) {
         perror("open");
         return EXIT_FAILURE;
     }
 
-    fd2 = open(argv[2], O_RDONLY, O_DIRECT);
+    fd2 = open(argv[2], O_RDONLY);
 
     if (fd2 == -1) {
         perror("open");
@@ -91,11 +91,11 @@ int main(int argc, char ** argv)
         //printf("%ld ", aio.aio_offset);
         //aio_read(&aio);
         aio_list[0] = &aio;
-        lio_listio( LIO_NOWAIT, aio_list, MAX_LIST, NULL );
+        //lio_listio( LIO_NOWAIT, aio_list, MAX_LIST, NULL );
 
-        while (aio_error(&aio) == EINPROGRESS) {}
+        //while (aio_error(&aio) == EINPROGRESS) {}
 
-        bytes_read += aio_return(&aio);
+        //bytes_read += aio_return(&aio);
 
         //printf("%d bytes in the last aio read.\n", bytes_read);
         //printf("They are: %s\n", data);
