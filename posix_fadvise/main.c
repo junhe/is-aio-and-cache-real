@@ -87,13 +87,17 @@ int main(int argc, char ** argv)
         offset = len1 * (rand() / (double)RAND_MAX);
         //printf("%ld ", aio.aio_offset);
         posix_fadvise( fd1, offset, READSIZE, POSIX_FADV_WILLNEED);
+    }
 
-        usleep(50000);
+    sleep(20);
 
-        //printf("%d bytes in the last aio read.\n", bytes_read);
-        //printf("They are: %s\n", data);
+    printf("gaga\n");
+    return 0;
 
-        // Test if pread still cost lots of time
+    srand(5);
+    //clock_gettime(TIMING_METHOD, &time1);
+    for ( i = 0 ; i < REPTIMES ; i++ ) {
+        offset = len1 * (rand() / (double)RAND_MAX);
         gettimeofday(&start, NULL);
 
         bytes_read_pread += pread( fd1, data_pread, READSIZE, offset ); 
@@ -103,6 +107,7 @@ int main(int argc, char ** argv)
         timeradd( &totaltime, &result, &tmp );
         totaltime = tmp;
     }
+
 
 
     printf("========== pread() with caching ============\n");
