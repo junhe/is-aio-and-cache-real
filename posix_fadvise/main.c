@@ -30,8 +30,8 @@
 #include <sys/time.h>
 #include <fcntl.h>
 
-#define REPTIMES 1000
-#define READSIZE 1
+#define REPTIMES 1024
+#define READSIZE 81290
 
 int main(int argc, char ** argv)
 {
@@ -83,36 +83,33 @@ int main(int argc, char ** argv)
 
     srand(5);
     //clock_gettime(TIMING_METHOD, &time1);
+    gettimeofday(&start, NULL);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         offset = len1 * (rand() / (double)RAND_MAX);
         //printf("%ld ", aio.aio_offset);
         posix_fadvise( fd1, offset, READSIZE, POSIX_FADV_WILLNEED);
     }
+    gettimeofday(&end, NULL);
+    timersub( &end, &start, &result );
+    printf("posix_fadvise time (REPTIMES:%d): %ld.%.6ld\n", 
+            REPTIMES, result.tv_sec, result.tv_usec);
 
     sleep(20);
 
-    printf("gaga\n");
-    return 0;
 
     srand(5);
     //clock_gettime(TIMING_METHOD, &time1);
+    gettimeofday(&start, NULL);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         offset = len1 * (rand() / (double)RAND_MAX);
-        gettimeofday(&start, NULL);
 
         bytes_read_pread += pread( fd1, data_pread, READSIZE, offset ); 
-        
-        gettimeofday(&end, NULL);
-        timersub( &end, &start, &result );
-        timeradd( &totaltime, &result, &tmp );
-        totaltime = tmp;
     }
+    gettimeofday(&end, NULL);
+    timersub( &end, &start, &result );
+    printf("pread() with caching time (REPTIMES:%d): %ld.%.6ld\n", 
+            REPTIMES, result.tv_sec, result.tv_usec);
 
-
-
-    printf("========== pread() with caching ============\n");
-    printf("pread() Time after caching by aio: %ld.%ld\n", 
-            totaltime.tv_sec, totaltime.tv_usec);
     printf("%d bytes read by pread()\n", bytes_read_pread);
 
     close(fd1);
@@ -125,21 +122,16 @@ int main(int argc, char ** argv)
 
     srand(5);
     bytes_read = 0;
+    gettimeofday(&start, NULL);
     for ( i = 0 ; i < REPTIMES ; i++ ) {
         offset = len2 * (rand() / (double)RAND_MAX);
-        //printf("%ld ", offset);
-        gettimeofday(&start, NULL);
 
         bytes_read += pread(fd2, data, READSIZE, offset);
-
-        gettimeofday(&end, NULL);
-        timersub( &end, &start, &result );
-        timeradd( &totaltime, &result, &tmp );
-        totaltime = tmp;
     }
-
-    printf("========== pread() without caching ============\n");
-    printf("pread() Time without caching: %ld.%ld\n", totaltime.tv_sec, totaltime.tv_usec);
+    gettimeofday(&end, NULL);
+    timersub( &end, &start, &result );
+    printf("pread() without caching time (REPTIMES:%d): %ld.%.6ld\n", 
+            REPTIMES, result.tv_sec, result.tv_usec);
     printf("%d bytes read by pread().\n", bytes_read);
     close(fd2);
 
